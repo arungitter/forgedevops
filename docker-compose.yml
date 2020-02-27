@@ -1,0 +1,73 @@
+version: '3'
+services:  
+  opendj_usr:
+    build:
+      context: .
+      dockerfile: DS/Dockerfile
+      args:
+        djNode: opendj_usr
+    ports:
+       - "127.0.1.4:4443:4443"
+       - "127.0.1.4:1388:1388"
+       - "127.0.1.4:1635:1635"
+       - "127.0.1.4:8442:8442"
+    environment:
+      BOOTSTRAP: /opt/forgerock/opendj_usr/opendj/Bootstrap/setup.sh
+      SOMEVAR: keep compose happy
+      adminConnectorPort: 4443
+      ldapPort: 1388
+      ldapsPort: 1635
+      httpsPort: 8442
+      djNode: opendj_usr
+    extra_hosts:
+      - "nausawsodj601.corp.valvoline.com:127.0.0.1"
+      - "nausawsodj601.corp.valvoline.com:0.0.0.0"
+    volumes:
+      - /home/a523935/dockerconf/dj_USR:/opt/forgerock/opendj_usr/opendj/data
+  opendj_cfg:
+    build:
+      context: .
+      dockerfile: DS/Dockerfile
+      args:
+        djNode: opendj_cfg
+    ports:
+       - "127.0.1.6:4444:4444"
+       - "127.0.1.6:1389:1389"
+       - "127.0.1.6:1636:1636"
+       - "127.0.1.6:8443:8443"
+    environment:
+      BOOTSTRAP: /opt/forgerock/opendj_cfg/opendj/Bootstrap/cfg/setup.sh
+      SOMEVAR: keep compose happy
+      adminConnectorPort: 4444
+      ldapPort: 1389
+      ldapsPort: 1636
+      httpsPort: 8443
+      djNode: opendj_cfg
+    extra_hosts:
+      - "nausawsodj603.corp.valvoline.com:127.0.0.1"
+      - "nausawsodj603.corp.valvoline.com:0.0.0.0"
+    volumes:
+      - /home/a523935/dockerconf/dj_CFG:/opt/forgerock/opendj_cfg/opendj/data
+  openam:
+    build:
+      context: .
+      dockerfile: AM/Dockerfile-am
+      args:
+       https_port: 8143
+    ports:
+       - "127.0.1.7:8180:8080"
+       - "127.0.1.7:8143:8443"
+    environment:
+      JAVA_OPTS: -Dport.shutdown=8005 -Dport.http=8180 -Dport.https=8143 -Daddress=127.0.1.7
+      OPENAM_INSTANCE: http://nausawsoam601.corp.valvoline.com:8080
+      SERVER_URI: /auth
+    extra_hosts:
+      - "nausawsoam601.corp.valvoline.com:127.0.0.1"
+    depends_on:
+      - opendj_usr
+      - opendj_cfg
+    links:
+      - opendj_usr:nausawsodj601.corp.valvoline.com
+      - opendj_cfg:nausawsodj603.corp.valvoline.com
+    volumes:
+      - /home/a523935/dockerconf/openam:/root/openam

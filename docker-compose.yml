@@ -51,7 +51,7 @@ services:
   openam:
     build:
       context: .
-      dockerfile: AM/Dockerfile-am
+      dockerfile: AM/Dockerfile
       args:
        https_port: 8143
     ports:
@@ -69,5 +69,24 @@ services:
     links:
       - opendj_usr:nausawsodj601.corp.valvoline.com
       - opendj_cfg:nausawsodj603.corp.valvoline.com
+    volumes:
+      - /home/a523935/dockerconf/openam:/root/openam
+  amster:
+    build:
+      context: .
+      dockerfile: amster/Dockerfile
+      # args:
+       # https_port: 8143
+    # ports:
+       # - "8180:8080"
+       # - "8143:8443"
+    environment:
+      JAVA_OPTS: -Dport.shutdown=8005 -Dport.http=8180 -Dport.https=8143 -Daddress=127.0.1.7
+      OPENAM_INSTANCE: http://nausawsoam601.corp.valvoline.com:8080
+      SERVER_URI: /auth
+    depends_on:
+      - openam
+    links:
+      - openam:nausawsoam601.corp.valvoline.com
     volumes:
       - /home/a523935/dockerconf/openam:/root/openam

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Run the OpenDJ server
 # The idea is to consolidate all of the writable DJ directories to
 # a single instance directory root, and update DJ's instance.loc file to point to that root
@@ -59,3 +59,7 @@ echo "Starting OpenDJ"
 #
 
 exec ./bin/start-ds --nodetach
+
+
+
+

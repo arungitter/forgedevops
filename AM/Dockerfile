@@ -1,8 +1,8 @@
-FROM java:8
+FROM openjdk:8-alpine
 
 MAINTAINER arun.verma@valvoline.com
 
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+#ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 ENV AM_HOME /opt/forgerock 
 
 #ARG shutdown_port
@@ -26,6 +26,7 @@ WORKDIR $AM_HOME/
 
 RUN rm -fr tomcat/webapps/*
 COPY AM/auth.war tomcat/webapps/auth.war
+
 COPY AM/server.xml tomcat/conf/server.xml
 COPY AM/run.sh tomcat/run.sh
 RUN chmod +x tomcat/run.sh

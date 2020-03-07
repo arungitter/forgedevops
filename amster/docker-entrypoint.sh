@@ -1,17 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # Copyright (c) 2016-2017 ForgeRock AS. All rights reserved.
 #
 
-#cd /opt/forgerock/tomcat
-#echo "Starting tomcat"
-
-#/opt/forgerock/tomcat/bin/startup.sh
-
 set -x
-
-cd /opt/forgerock/amster/
-
 
 
 exit_script() {
@@ -38,12 +30,12 @@ pause() {
 }
 
 # Extract amster version for commons parameter to modify configs
-echo "Extracting amster version"
-VER=$(./amster --version)
-[[ "$VER" =~ ([0-9].[0-9].[0-9](\.[0-9]*)?-([a-zA-Z][0-9]+|SNAPSHOT|RC[0-9]+)|[0-9].[0-9].[0-9](\.[0-9]*)?) ]]
-VERSION=${BASH_REMATCH[1]}
-echo "Amster version is: '${VERSION}'"
-export VERSION
+#echo "Extracting amster version"
+#VER=$(./amster --version)
+#[[ "$VER" =~ ([0-9].[0-9].[0-9](\.[0-9]*)?-([a-zA-Z][0-9]+|SNAPSHOT|RC[0-9]+)|[0-9].[0-9].[0-9](\.[0-9]*)?) ]]
+#VERSION=${BASH_REMATCH[1]}
+#echo "Amster version is: '${VERSION}'"
+#export VERSION
 
 
 case $1  in
@@ -54,6 +46,7 @@ configure)
     # Without this chmod, Docker does not know the file is executable on Windows
     chmod +x amster-install.sh
     # Invoke amster install
+	ls -l
     ./amster-install.sh
     pause
     ;;

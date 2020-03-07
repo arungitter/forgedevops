@@ -1,5 +1,18 @@
 version: '3'
 services:  
+  # openidm:
+    # build:
+      # context: .
+      # dockerfile: IDM/Dockerfile
+      # args:
+        # djNode: openidm
+    # ports:
+       # - "127.0.1.3:8280:8080"
+       # - "127.0.1.3:8243:8443"
+    # environment:
+      # node: openidm
+    # volumes:
+      # - c:\docker\openidm:/opt/forgerock/openidm
   opendj_usr:
     build:
       context: .
@@ -12,8 +25,8 @@ services:
        - "127.0.1.4:1635:1635"
        - "127.0.1.4:8442:8442"
     environment:
-      BOOTSTRAP: /opt/forgerock/opendj_usr/opendj/Bootstrap/setup.sh
-      SOMEVAR: keep compose happy
+      BOOTSTRAP: /opt/forgerock/opendj_usr/opendj/Bootstrap/usr/setup.sh
+      host: nausawsodj601.corp.valvoline.com
       adminConnectorPort: 4443
       ldapPort: 1388
       ldapsPort: 1635
@@ -23,7 +36,7 @@ services:
       - "nausawsodj601.corp.valvoline.com:127.0.0.1"
       - "nausawsodj601.corp.valvoline.com:0.0.0.0"
     volumes:
-      - /home/a523935/dockerconf/dj_USR:/opt/forgerock/opendj_usr/opendj/data
+      - c:\docker\dj_usr:/opt/forgerock/opendj_usr/opendj/bak
   opendj_cfg:
     build:
       context: .
@@ -37,7 +50,7 @@ services:
        - "127.0.1.6:8443:8443"
     environment:
       BOOTSTRAP: /opt/forgerock/opendj_cfg/opendj/Bootstrap/cfg/setup.sh
-      SOMEVAR: keep compose happy
+      host: nausawsodj603.corp.valvoline.com
       adminConnectorPort: 4444
       ldapPort: 1389
       ldapsPort: 1636
@@ -47,7 +60,7 @@ services:
       - "nausawsodj603.corp.valvoline.com:127.0.0.1"
       - "nausawsodj603.corp.valvoline.com:0.0.0.0"
     volumes:
-      - /home/a523935/dockerconf/dj_CFG:/opt/forgerock/opendj_cfg/opendj/data
+      - c:\docker\dj_cfg:/opt/forgerock/opendj_cfg/opendj/bak
   openam:
     build:
       context: .
@@ -70,23 +83,18 @@ services:
       - opendj_usr:nausawsodj601.corp.valvoline.com
       - opendj_cfg:nausawsodj603.corp.valvoline.com
     volumes:
-      - /home/a523935/dockerconf/openam:/root/openam
+      - c:\docker\am:/root/openam
+      #- c:\docker\openam:/opt/forgerock/tomcat/webapps/auth
   amster:
     build:
       context: .
       dockerfile: amster/Dockerfile
-      # args:
-       # https_port: 8143
-    # ports:
-       # - "8180:8080"
-       # - "8143:8443"
     environment:
-      JAVA_OPTS: -Dport.shutdown=8005 -Dport.http=8180 -Dport.https=8143 -Daddress=127.0.1.7
       OPENAM_INSTANCE: http://nausawsoam601.corp.valvoline.com:8080
       SERVER_URI: /auth
     depends_on:
       - openam
     links:
       - openam:nausawsoam601.corp.valvoline.com
-    volumes:
-      - /home/a523935/dockerconf/openam:/root/openam
+    #volumes:
+     # - c:\docker\amster:/opt/forgerock/amster

@@ -1,14 +1,14 @@
-FROM java:8
+FROM openjdk:8-alpine
 
 MAINTAINER arun.verma@valvoline.com
 
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+#ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 
 ARG djNode
 RUN echo $djNode
 
 ENV djNode $djNode
-ENV dj_home=/opt/forgerock
+ENV dj_home /opt/forgerock
 
 WORKDIR $dj_home/
 RUN ls -l

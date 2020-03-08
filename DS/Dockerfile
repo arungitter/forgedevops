@@ -17,7 +17,8 @@ WORKDIR $dj_home/$djNode/
 
  
 WORKDIR $dj_home/
-RUN unzip $djNode/DS-6.5.2.zip -d $djNode/
+RUN unzip $djNode/DS-6.5.2.zip -d $djNode/ && rm  $djNode/DS-6.5.2.zip
+
 
 
 ADD DS/Bootstrap/ $djNode/opendj/Bootstrap/

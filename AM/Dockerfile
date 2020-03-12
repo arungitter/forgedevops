@@ -1,44 +1,27 @@
-FROM openjdk:8-alpine
+FROM openjdk:8-jre-alpine
+MAINTAINER Arun Verma <arun.verma@valvoline.com>
 
-MAINTAINER arun.verma@valvoline.com
+ENV TOMCAT_MAJOR 9
+ENV TOMCAT_VERSION 9.0.31
 
-#ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
-ENV AM_HOME /opt/forgerock 
+#ENV TOMCAT_TGZ_URL http://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz
+#ENV KEYSTORE /opt/forgerock/tomcat/conf/keystore
+#ENV KEYPASS changeit
+#ENV KEY_DNAME "cn=Tomcat, ou=Docker, o=cloud, c=internet"
 
-#ARG shutdown_port
-
-#ENV CATALINA_OPTS "-XX:MaxRAMPercentage=75.0 -Dcom.iplanet.services.stats.state=off -Djavax.net.ssl.trustStore=/var/run/secrets/truststore/cacerts -Djavax.net.ssl.trustStorePassword=changeit -D"
-
-#RUN apt-get install -y curl
-
-
-RUN mkdir openam
-WORKDIR $AM_HOME/
-
-
-ADD AM/apache-tomcat*  $AM_HOME/
-RUN cp -R $AM_HOME/apache-tomcat* $AM_HOME/tomcat
-RUN rm -R $AM_HOME/apache-tomcat*
-WORKDIR $AM_HOME/tomcat
+ADD AM/apache-tomcat-9.0.31.tar.gz /opt/forgerock/
+WORKDIR /opt/forgerock
 RUN ls -l
-WORKDIR $AM_HOME/
+RUN \
+#    mv apache-tomcat-9.0.31.tar.gz tomcat.tar.gz && \
+#    tar xzf tomcat.tar.gz && \
+    mv apache-tomcat-9.0.31 tomcat && \
+    rm -f tomcat/bin/*.bat tomcat/bin/*.gz tomcat/temp/* tomcat.tar.gz tomcat/[A-Z]* && \
+    rm -rf tomcat/webapps/*
 
-
-RUN rm -fr tomcat/webapps/*
-COPY AM/auth.war tomcat/webapps/auth.war
-
-COPY AM/server.xml tomcat/conf/server.xml
-COPY AM/run.sh tomcat/run.sh
-RUN chmod +x tomcat/run.sh
-WORKDIR $AM_HOME/tomcat/bin
-RUN ls -l
-WORKDIR $AM_HOME/
-EXPOSE 8180 8143
-
-WORKDIR $AM_HOME/
-CMD ["tomcat/run.sh"]
-
-#WORKDIR $AM_HOME/amster/
-#ENTRYPOINT ["bash", "-x", "docker-entrypoint.sh"]
-
-#CMD ["configure"]
+ADD AM/start_override.sh /opt/forgerock/tomcat/bin/
+ADD AM/server.xml /opt/forgerock/tomcat/conf/
+ADD AM/auth.war /opt/forgerock/tomcat/webapps/
+WORKDIR /opt/forgerock/tomcat
+EXPOSE 8009 8180 8143
+CMD [ "bin/start_override.sh", "bin/catalina.sh", "run" ]

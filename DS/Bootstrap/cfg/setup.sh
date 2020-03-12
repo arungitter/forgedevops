@@ -9,9 +9,8 @@ echo "Setting up default OpenDJ instance"
   #--baseDN $BASE_DN -h localhost --rootUserPassword "$PASSWORD" \
  # --acceptLicense --no-prompt --sampleData 2
 
-/opt/forgerock/opendj_cfg/opendj/setup  directory-server  --rootUserDN cn=DirectoryManager  --rootUserPassword Inside@123  --monitorUserPassword Inside@123  --hostname nausawsodj603.corp.valvoline.com  --ldapPort $ldapPort  --doNotStart --ldapsPort $ldapsPort  --httpsPort $httpsPort  --adminConnectorPort $adminConnectorPort  --productionMode  --profile am-config  --set am-config/amConfigAdminPassword:Inside@123  --acceptLicense 
+/opt/forgerock/opendj_cfg/opendj/setup  directory-server  --rootUserDN "cn=DirectoryManager"  --rootUserPassword $rootpass  --monitorUserPassword $monitorpass  --hostname $host  --ldapPort $ldapPort  --ldapsPort $ldapsPort  --httpsPort $httpsPort  --adminConnectorPort $adminport --doNotStart    --profile am-config  --set am-config/amConfigAdminPassword:Inside@123  --acceptLicense 
  
-/opt/forgerock/opendj_cfg/opendj/bin/backup  --hostname nausawsodj601.corp.valvoline.com  --port 4443  --bindDN "cn=DirectoryManager"  --bindPassword "Inside@123" --backUpAll  --backupDirectory /opt/forgerock/OpenDJ_USR/opendj/bak --backUpAll --recurringTask "00 02 * * *" --completionNotify arun.verma@valvoline.com --errorNotify arun.verma@valvoline.com  --trustAll
 
 #--addBaseEntry
 

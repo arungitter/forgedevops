@@ -1,4 +1,4 @@
-FROM openjdk:8-alpine
+FROM openjdk:8-jre-alpine
 
 RUN mkdir /opt/forgerock \
 	&& adduser --disabled-password fruserd \
@@ -7,8 +7,8 @@ RUN mkdir /opt/forgerock \
 USER fruserd
 WORKDIR /opt/forgerock
 
-ADD --chown=fruserd IDM/IDM-6.5.0.3.zip ./
-RUN unzip  IDM-6.5.0.3.zip -d ./ && rm IDM-6.5.0.3.zip 
+ADD --chown=fruserd IDM/IDM-6.5.0.2.zip ./
+RUN unzip  IDM-6.5.0.2.zip -d ./ && rm IDM-6.5.0.2.zip 
 
 EXPOSE 8280 8243
 

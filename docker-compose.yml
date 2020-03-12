@@ -1,18 +1,5 @@
 version: '3'
-services:  
-  # openidm:
-    # build:
-      # context: .
-      # dockerfile: IDM/Dockerfile
-      # args:
-        # djNode: openidm
-    # ports:
-       # - "127.0.1.3:8280:8080"
-       # - "127.0.1.3:8243:8443"
-    # environment:
-      # node: openidm
-    # volumes:
-      # - c:\docker\openidm:/opt/forgerock/openidm
+services:
   opendj_usr:
     build:
       context: .
@@ -26,15 +13,22 @@ services:
        - "127.0.1.4:8442:8442"
     environment:
       BOOTSTRAP: /opt/forgerock/opendj_usr/opendj/Bootstrap/usr/setup.sh
-      host: nausawsodj601.corp.valvoline.com
-      adminConnectorPort: 4443
+      host: nausawssodj601.corp.valvoline.com
       ldapPort: 1388
       ldapsPort: 1635
       httpsPort: 8442
+      adminport: 4443
+      monitorpass: Inside@123
+      rootpass: Inside@123
+      host: nausawssodj601.corp.valvoline.com
       djNode: opendj_usr
+      email: arun.verma@valvoline.com
+      cron: 00 02 * * *
+      restore: 0
+      node: usr
     extra_hosts:
-      - "nausawsodj601.corp.valvoline.com:127.0.0.1"
-      - "nausawsodj601.corp.valvoline.com:0.0.0.0"
+      - "nausawssodj601.corp.valvoline.com:127.0.0.1"
+      - "nausawssodj601.corp.valvoline.com:0.0.0.0"
     volumes:
       - c:\docker\dj_usr:/opt/forgerock/opendj_usr/opendj/bak
   opendj_cfg:
@@ -50,15 +44,22 @@ services:
        - "127.0.1.6:8443:8443"
     environment:
       BOOTSTRAP: /opt/forgerock/opendj_cfg/opendj/Bootstrap/cfg/setup.sh
-      host: nausawsodj603.corp.valvoline.com
-      adminConnectorPort: 4444
+      host: nausawssodj603.corp.valvoline.com
       ldapPort: 1389
       ldapsPort: 1636
       httpsPort: 8443
+      adminport: 4444
+      host: nausawssodj603.corp.valvoline.com
+      monitorpass: Inside@123
+      rootpass: Inside@123
+      email: arun.verma@valvoline.com
       djNode: opendj_cfg
+      cron: 00 02 * * *
+      restore: 1
+      node: cfg
     extra_hosts:
-      - "nausawsodj603.corp.valvoline.com:127.0.0.1"
-      - "nausawsodj603.corp.valvoline.com:0.0.0.0"
+      - "nausawssodj603.corp.valvoline.com:127.0.0.1"
+      - "nausawssodj603.corp.valvoline.com:0.0.0.0"
     volumes:
       - c:\docker\dj_cfg:/opt/forgerock/opendj_cfg/opendj/bak
   openam:
@@ -72,29 +73,50 @@ services:
        - "127.0.1.7:8143:8443"
     environment:
       JAVA_OPTS: -Dport.shutdown=8005 -Dport.http=8180 -Dport.https=8143 -Daddress=127.0.1.7
-      OPENAM_INSTANCE: http://nausawsoam601.corp.valvoline.com:8080
+      OPENAM_INSTANCE: http://nausawssoam601.corp.valvoline.com:8080
       SERVER_URI: /auth
     extra_hosts:
-      - "nausawsoam601.corp.valvoline.com:127.0.0.1"
+     - "nausawssoam601.corp.valvoline.com:127.0.0.1"
     depends_on:
-      - opendj_usr
-      - opendj_cfg
+     - opendj_usr
+     - opendj_cfg
     links:
-      - opendj_usr:nausawsodj601.corp.valvoline.com
-      - opendj_cfg:nausawsodj603.corp.valvoline.com
+     - opendj_usr:nausawssodj601.corp.valvoline.com
+     - opendj_cfg:nausawssodj603.corp.valvoline.com
     volumes:
-      - c:\docker\am:/root/openam
-      #- c:\docker\openam:/opt/forgerock/tomcat/webapps/auth
+     - c:\docker\am:/root/openam
+     - c:/docker/openam:/opt/forgerock/tomcat/webapps
   amster:
     build:
       context: .
       dockerfile: amster/Dockerfile
     environment:
-      OPENAM_INSTANCE: http://nausawsoam601.corp.valvoline.com:8080
+      OPENAM_INSTANCE: http://nausawssoam601.corp.valvoline.com:8080
       SERVER_URI: /auth
     depends_on:
       - openam
     links:
-      - openam:nausawsoam601.corp.valvoline.com
-    #volumes:
-     # - c:\docker\amster:/opt/forgerock/amster
+      - openam:nausawssoam601.corp.valvoline.com
+    volumes:
+     - c:\docker\amster:/opt/forgerock/amster/bak
+  # openam-ui:
+    # build:
+      # context: .
+      # dockerfile: am-ui/Dockerfile
+      # args:
+        # openam: openam-ui
+    # environment:
+      # node: openam-ui
+    # volumes:
+       # - c:\docker\am-ui:/opt/forgerock/forgerock-aws/open-am-ui/openam-ui-ria/node_modules
+  # openidm:
+    # build:
+      # context: .
+      # dockerfile: IDM/Dockerfile
+      # args:
+        # djNode: openidm
+    # ports:
+       # - "127.0.1.3:8280:8080"
+       # - "127.0.1.3:8243:8443"
+    # environment:
+      # node: openidm

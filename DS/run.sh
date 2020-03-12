@@ -12,39 +12,43 @@ cd /opt/forgerock/$djNode/opendj
 
 
 # Instance dir does not exist? Then we need to run setup
-if [ ! -d ./data/config ] ; then
-  echo "Instance data Directory is empty. Creating new DJ instance"
+  if [ ! -d ./data/config ] ; then
+	  echo "Instance data Directory is empty. Creating new DJ instance"
 
-  BOOTSTRAP=${BOOTSTRAP:-/opt/forgerock/opendj/Bootstrap/setup.sh}
+	  BOOTSTRAP=${BOOTSTRAP:-/opt/forgerock/opendj/Bootstrap/setup.sh}
+	  echo "Running $BOOTSTRAP"
+	  sh "${BOOTSTRAP}"
 
-  #export BASE_DN=${BASE_DN:-"dc=valvoline,dc=com"}
-  #echo "BASE DN is ${BASE_DN}"
- # PW=`cat $DIR_MANAGER_PW_FILE`
- # export PASSWORD=${PW:-password}
+	   # Check if DJ_MASTER_SERVER var is set. If it is - replicate to that server
+	  # if [ ! -z ${DJ_MASTER_SERVER+x} ];  then
+		#  /opt/forgerock/opendj/bootstrap/replicate.sh $DJ_MASTER_SERVER
+	  # fi
+  fi
 
-  # echo "Password set to $PASSWORD"
+  if [  -f /opt/forgerock/$djNode/opendj/bak/cfgStore/backup.info ]; then
+		echo "nested if"
+		
+		if [ $restore = "1" ]; 
+		 then
+		 
+		cd /opt/forgerock/$djNode/opendj/bak/cfgStore
+		result=$(ls -t1 |  head -n 1)
+		SUBSTRING=$(echo $result| cut -d'-' -f 3)
+		
+		cd /opt/forgerock/$djNode/opendj
+		
+		echo "backup ID $SUBSTRING in progress"
+		
+		/opt/forgerock/$djNode/opendj/bin/restore --offline --backupID $SUBSTRING --backupDirectory /opt/forgerock/$djNode/opendj/bak/adminRoot
+		#/opt/forgerock/$djNode/opendj/bin/restore --offline --backupID $SUBSTRING --backupDirectory /opt/forgerock/$djNode/opendj/bak/ads-truststore
+		/opt/forgerock/$djNode/opendj/bin/restore --offline --backupID $SUBSTRING --backupDirectory /opt/forgerock/$djNode/opendj/bak/cfgStore
+		#/opt/forgerock/$djNode/opendj/bin/restore --offline --backupID $SUBSTRING --backupDirectory /opt/forgerock/$djNode/opendj/bak/monitorUser
+		/opt/forgerock/$djNode/opendj/bin/restore --offline --backupID $SUBSTRING --backupDirectory /opt/forgerock/$djNode/opendj/bak/rootUser
+		/opt/forgerock/$djNode/opendj/bin/restore --offline --backupID $SUBSTRING --backupDirectory /opt/forgerock/$djNode/opendj/bak/schema
+		/opt/forgerock/$djNode/opendj/bin/restore --offline --backupID $SUBSTRING --backupDirectory /opt/forgerock/$djNode/opendj/bak/tasks
+		fi
+ fi
 
-   echo "Running $BOOTSTRAP"
-   sh "${BOOTSTRAP}"
-
-   # Check if DJ_MASTER_SERVER var is set. If it is - replicate to that server
-  # if [ ! -z ${DJ_MASTER_SERVER+x} ];  then
-    #  /opt/forgerock/opendj/bootstrap/replicate.sh $DJ_MASTER_SERVER
-  # fi
-fi
-
-# Check if keystores are mounted as a volume, and if so
-# Copy any keystores over
-#SECRET_VOLUME=${SECRET_VOLUME:-/var/secrets/opendj}
-
-#if [ -d "${SECRET_VOLUME}" ]; then
-#  echo "Secret volume is present. Will copy any keystores and truststore"
-#  # We send errors to /dev/null in case no data exists.
-#  cp -f ${SECRET_VOLUME}/key*   ${SECRET_VOLUME}/trust* ./data/config 2>/dev/null
-#fi
-
-# todo: Check /opt/forgerock/opendj/data/config/buildinfo
-# Run upgrade if the server is older
 
 
 if (bin/status -n | grep Started) ; then
@@ -55,11 +59,22 @@ fi
 
 
 echo "Starting OpenDJ"
-
 #
+sh ./bin/start-ds 
 
-exec ./bin/start-ds --nodetach
-
-
-
+wait_for_node()
+{
+	
+	while true
+	do 
+		if (bin/status --offline -n | grep Started) ; then
+		
+		  # if [ ! -d ./config ] ; then
+				sh /opt/forgerock/$djNode/opendj/Bootstrap/$node/postsetup.sh
+				sleep 1000000
+		 #  fi
+		fi 
+	done
+}
+wait_for_node
 

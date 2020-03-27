@@ -69,10 +69,10 @@ wait_for_node()
 	do 
 		if (bin/status --offline -n | grep Started) ; then
 		
-		  # if [ ! -d ./config ] ; then
+		   if [ ! -d ./config ] ; then
 				sh /opt/forgerock/$djNode/opendj/Bootstrap/$node/postsetup.sh
 				sleep 1000000
-		 #  fi
+		   fi
 		fi 
 	done
 }

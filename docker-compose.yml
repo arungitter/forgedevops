@@ -55,7 +55,7 @@ services:
       email: arun.verma@valvoline.com
       djNode: opendj_cfg
       cron: 00 02 * * *
-      restore: 1
+      restore: 0
       node: cfg
     extra_hosts:
       - "nausawssodj603.corp.valvoline.com:127.0.0.1"
